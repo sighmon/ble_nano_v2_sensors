@@ -32,6 +32,7 @@ int fakeSensorPin = A4;
 
 #define DEVICE_NAME                       "BLE Serial"
 #define TXRX_BUF_LEN                      20
+#define LED_BUILTIN D13
 
 BLE                                       ble;
 Timeout                                   timeout;
@@ -58,6 +59,7 @@ GattService         uartService(service1_uuid, uartChars, sizeof(uartChars) / si
 
 void disconnectionCallBack(const Gap::DisconnectionCallbackParams_t *params) {
   ble.startAdvertising();
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void gattServerWriteCallBack(const GattWriteCallbackParams *Handler) {
@@ -105,12 +107,15 @@ void readSensorCallback() {
   // Read the sensor here
   Serial.print("Sensor reading: ");
   Serial.println(analogRead(fakeSensorPin));
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void setup() {
   // put your setup code here, to run once
   Serial.begin(9600);
   Serial.attach(uart_handle);
+
+  pinMode(LED_BUILTIN, OUTPUT);
 
   ble.init();
   ble.onDisconnection(disconnectionCallBack);
